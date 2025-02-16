@@ -67,15 +67,15 @@ fun MainScreen() {
             LazyVerticalGrid(
                 columns = GridCells.Adaptive(minSize = 100.dp), // El tamaño mínimo de los cuadros
                 modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(8.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                contentPadding = PaddingValues(1.dp),
+                verticalArrangement = Arrangement.spacedBy(50.dp),
+                horizontalArrangement = Arrangement.spacedBy(10.dp)
             ) {
                 items(items.size) { index ->
                     Box(
                         modifier = Modifier
-                            .size(100.dp)
-                            .padding(8.dp)
+                            .size(170.dp)
+                            .padding(2.dp)
                             .background(MaterialTheme.colorScheme.primary)
 
                     ) {
