@@ -3,9 +3,12 @@ package com.tecmilenio.booktrackerevidencia
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
@@ -25,6 +28,8 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun MainScreen() {
+    var items by remember { mutableStateOf(listOf<String>()) } // Lista para almacenar los cuadros
+
     // Contenedor principal
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -35,7 +40,7 @@ fun MainScreen() {
                 .fillMaxSize()
                 .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+            verticalArrangement = Arrangement.Top
         ) {
             // Título de la pantalla
             Text(
@@ -45,12 +50,44 @@ fun MainScreen() {
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // Descripción o mensaje breve
-            Text(
-                text = "¡Bienvenido a la app para hacer seguimiento de libros",
-                style = MaterialTheme.typography.bodyLarge
-            )
+            // Botón para agregar un nuevo cuadro
+            Button(
+                onClick = {
+                    // Agregar un nuevo cuadro (elemento) al hacer clic
+                    items = items + "Cuadro ${items.size + 1}"
+                },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Agregar Cuadro")
+            }
 
+            Spacer(modifier = Modifier.height(32.dp))
+
+            // Rejilla de cuadros que se agregan dinámicamente
+            LazyVerticalGrid(
+                columns = GridCells.Adaptive(minSize = 100.dp), // El tamaño mínimo de los cuadros
+                modifier = Modifier.fillMaxSize(),
+                contentPadding = PaddingValues(8.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                items(items.size) { index ->
+                    Box(
+                        modifier = Modifier
+                            .size(100.dp)
+                            .padding(8.dp)
+                            .background(MaterialTheme.colorScheme.primary)
+
+                    ) {
+                        Text(
+                            text = items[index],
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onPrimary,
+                            modifier = Modifier.align(Alignment.Center)
+                        )
+                    }
+                }
+            }
         }
     }
 }
@@ -62,3 +99,4 @@ fun MainScreenPreview() {
         MainScreen()
     }
 }
+
