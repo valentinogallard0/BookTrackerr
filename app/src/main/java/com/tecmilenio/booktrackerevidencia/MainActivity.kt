@@ -44,7 +44,7 @@ fun MainScreen() {
         ) {
             // Título de la pantalla
             Text(
-                text = "Book Tracker",
+                text = "Book Tracker Prueba commit",
                 style = MaterialTheme.typography.headlineLarge
             )
 
