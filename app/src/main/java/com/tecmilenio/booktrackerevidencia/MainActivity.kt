@@ -43,7 +43,7 @@ fun MainScreen() {
     // Contenedor principal
     Surface(
         modifier = Modifier.fillMaxSize(),
-        color = Color(25, 54, 92)
+        color = Color(21, 37, 60, 255)
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
             Column(
