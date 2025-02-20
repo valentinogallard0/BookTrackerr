@@ -118,7 +118,7 @@ fun MainScreen() {
                 containerColor = Color(108, 108, 108),
                 contentColor = Color.White
             ) {
-                Icon(Icons.Default.Add, contentDescription = "Agregar libro")
+                Icon(Icons.Default.Add, contentDescription = "Agregar libros a pagina main")
             }
         }
     }
