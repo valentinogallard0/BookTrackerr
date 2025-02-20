@@ -43,7 +43,7 @@ fun MainScreen() {
     // Contenedor principal
     Surface(
         modifier = Modifier.fillMaxSize(),
-        color = Color(243, 219, 163)
+        color = Color(25, 54, 92)
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
             Column(
@@ -58,7 +58,7 @@ fun MainScreen() {
                     text = "Book Tracker",
                     style = MaterialTheme.typography.headlineLarge.copy(
                         fontWeight = FontWeight.Bold,
-                        color = Color(57, 57, 57)
+                        color = Color(141, 141, 140)
                     )
                 )
 
