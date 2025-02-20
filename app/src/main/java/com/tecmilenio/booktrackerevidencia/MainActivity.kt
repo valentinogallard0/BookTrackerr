@@ -7,6 +7,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.*
@@ -17,6 +18,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import com.tecmilenio.booktrackerevidencia.ui.theme.BookTrackerEvidenciaTheme
 
 class MainActivity : ComponentActivity() {
@@ -41,7 +43,7 @@ fun MainScreen() {
     // Contenedor principal
     Surface(
         modifier = Modifier.fillMaxSize(),
-        color = MaterialTheme.colorScheme.background
+        color = Color(243, 219, 163)
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
             Column(
@@ -54,20 +56,29 @@ fun MainScreen() {
                 // Título
                 Text(
                     text = "Book Tracker",
-                    style = MaterialTheme.typography.headlineLarge
+                    style = MaterialTheme.typography.headlineLarge.copy(
+                        fontWeight = FontWeight.Bold,
+                        color = Color(57, 57, 57)
+                    )
                 )
 
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(20.dp))
 
                 // Barra de búsqueda
-                TextField(
+                OutlinedTextField(
                     value = searchText,
                     onValueChange = { searchText = it },
                     placeholder = { Text("Buscar libro...") },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(20.dp),
+                    colors = TextFieldDefaults.outlinedTextFieldColors(
+                        containerColor = Color.White,
+                        focusedBorderColor = Color.Transparent,
+                        unfocusedBorderColor = Color.Transparent
+                    )
                 )
 
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(40.dp))
 
                 // Rejilla de libros
                 LazyVerticalGrid(
@@ -82,7 +93,7 @@ fun MainScreen() {
                             modifier = Modifier
                                 .size(170.dp)
                                 .padding(2.dp)
-                                .background(MaterialTheme.colorScheme.primary)
+                                .background(Color(141, 141, 140))
                         ) {
                             Text(
                                 text = filteredItems[index],
@@ -101,10 +112,10 @@ fun MainScreen() {
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
                     .padding(16.dp),
-                containerColor = MaterialTheme.colorScheme.primary,
+                containerColor = Color(108, 108, 108),
                 contentColor = Color.White
             ) {
-                Icon(Icons.Default.Add, contentDescription = "Agregar libro")
+                Icon(Icons.Default.Add, contentDescription = "Agregar libros")
             }
         }
     }
