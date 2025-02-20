@@ -7,12 +7,16 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.graphics.Color
 import com.tecmilenio.booktrackerevidencia.ui.theme.BookTrackerEvidenciaTheme
 
 class MainActivity : ComponentActivity() {
@@ -26,67 +30,81 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreen() {
-    var items by remember { mutableStateOf(listOf<String>()) } // Lista para almacenar los cuadros
+    var items by remember { mutableStateOf(listOf<String>()) }
+    var searchText by remember { mutableStateOf(TextFieldValue("")) }
+
+    val filteredItems = items.filter { it.contains(searchText.text, ignoreCase = true) }
 
     // Contenedor principal
     Surface(
         modifier = Modifier.fillMaxSize(),
         color = MaterialTheme.colorScheme.background
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Top
-        ) {
-            // Título de la pantalla
-            Text(
-                text = "Book Tracker Prueba commit",
-                style = MaterialTheme.typography.headlineLarge
-            )
-
-            Spacer(modifier = Modifier.height(24.dp))
-
-            // Botón para agregar un nuevo cuadro
-            Button(
-                onClick = {
-                    // Agregar un nuevo cuadro (elemento) al hacer clic
-                    items = items + "Cuadro ${items.size + 1}"
-                },
-                modifier = Modifier.fillMaxWidth()
+        Box(modifier = Modifier.fillMaxSize()) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(25.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Top
             ) {
-                Text("Agregar Cuadro")
-            }
+                // Título
+                Text(
+                    text = "Book Tracker",
+                    style = MaterialTheme.typography.headlineLarge
+                )
 
-            Spacer(modifier = Modifier.height(32.dp))
+                Spacer(modifier = Modifier.height(16.dp))
 
-            // Rejilla de cuadros que se agregan dinámicamente
-            LazyVerticalGrid(
-                columns = GridCells.Adaptive(minSize = 100.dp), // El tamaño mínimo de los cuadros
-                modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(1.dp),
-                verticalArrangement = Arrangement.spacedBy(50.dp),
-                horizontalArrangement = Arrangement.spacedBy(10.dp)
-            ) {
-                items(items.size) { index ->
-                    Box(
-                        modifier = Modifier
-                            .size(170.dp)
-                            .padding(2.dp)
-                            .background(MaterialTheme.colorScheme.primary)
+                // Barra de búsqueda
+                TextField(
+                    value = searchText,
+                    onValueChange = { searchText = it },
+                    placeholder = { Text("Buscar libro...") },
+                    modifier = Modifier.fillMaxWidth()
+                )
 
-                    ) {
-                        Text(
-                            text = items[index],
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onPrimary,
-                            modifier = Modifier.align(Alignment.Center)
-                        )
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // Rejilla de libros
+                LazyVerticalGrid(
+                    columns = GridCells.Adaptive(minSize = 100.dp),
+                    modifier = Modifier.fillMaxSize(),
+                    contentPadding = PaddingValues(1.dp),
+                    verticalArrangement = Arrangement.spacedBy(50.dp),
+                    horizontalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    items(filteredItems.size) { index ->
+                        Box(
+                            modifier = Modifier
+                                .size(170.dp)
+                                .padding(2.dp)
+                                .background(MaterialTheme.colorScheme.primary)
+                        ) {
+                            Text(
+                                text = filteredItems[index],
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onPrimary,
+                                modifier = Modifier.align(Alignment.Center)
+                            )
+                        }
                     }
                 }
+            }
+
+            // Botón flotante en la parte inferior derecha
+            FloatingActionButton(
+                onClick = { items = items + "Libro ${items.size + 1}" },
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .padding(16.dp),
+                containerColor = MaterialTheme.colorScheme.primary,
+                contentColor = Color.White
+            ) {
+                Icon(Icons.Default.Add, contentDescription = "Agregar libro")
             }
         }
     }
@@ -99,4 +117,6 @@ fun MainScreenPreview() {
         MainScreen()
     }
 }
+
+
 
