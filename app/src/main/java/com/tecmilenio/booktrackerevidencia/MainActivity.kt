@@ -93,7 +93,10 @@ fun MainScreen() {
                             modifier = Modifier
                                 .size(170.dp)
                                 .padding(2.dp)
-                                .background(Color(141, 141, 140))
+                                .background(
+                                    Color(141, 141, 140),
+                                    shape = RoundedCornerShape(5.dp)
+                                    )
                         ) {
                             Text(
                                 text = filteredItems[index],
