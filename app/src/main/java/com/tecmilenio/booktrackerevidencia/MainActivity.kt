@@ -2,7 +2,10 @@ package com.tecmilenio.booktrackerevidencia
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -18,7 +21,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import coil.compose.rememberAsyncImagePainter
 import com.tecmilenio.booktrackerevidencia.ui.theme.BookTrackerEvidenciaTheme
 
 class MainActivity : ComponentActivity() {
@@ -35,10 +40,10 @@ class MainActivity : ComponentActivity() {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreen() {
-    var items by remember { mutableStateOf(listOf<String>()) }
+    var books by remember { mutableStateOf(listOf<Book>()) }
     var searchText by remember { mutableStateOf(TextFieldValue("")) }
 
-    val filteredItems = items.filter { it.contains(searchText.text, ignoreCase = true) }
+    val filteredItems = books.filter { it.title.contains(searchText.text, ignoreCase = true) }
 
     // Contenedor principal
     Surface(
@@ -65,53 +70,39 @@ fun MainScreen() {
                 Spacer(modifier = Modifier.height(20.dp))
 
                 // Barra de búsqueda
-                OutlinedTextField(
-                    value = searchText,
-                    onValueChange = { searchText = it },
-                    placeholder = { Text("Buscar libro...") },
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(20.dp),
-                    colors = TextFieldDefaults.outlinedTextFieldColors(
-                        containerColor = Color.White,
-                        focusedBorderColor = Color.Transparent,
-                        unfocusedBorderColor = Color.Transparent
-                    )
+                SearchBar(
+                    searchText = searchText,
+                    onSearchTextChanged = { searchText = it }
                 )
 
                 Spacer(modifier = Modifier.height(40.dp))
 
                 // Rejilla de libros
                 LazyVerticalGrid(
-                    columns = GridCells.Adaptive(minSize = 100.dp),
+                    columns = GridCells.Adaptive(minSize = 150.dp),
                     modifier = Modifier.fillMaxSize(),
                     contentPadding = PaddingValues(1.dp),
                     verticalArrangement = Arrangement.spacedBy(50.dp),
                     horizontalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
                     items(filteredItems.size) { index ->
-                        Box(
-                            modifier = Modifier
-                                .size(170.dp)
-                                .padding(2.dp)
-                                .background(
-                                    Color(141, 141, 140),
-                                    shape = RoundedCornerShape(5.dp)
-                                    )
-                        ) {
-                            Text(
-                                text = filteredItems[index],
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.onPrimary,
-                                modifier = Modifier.align(Alignment.Center)
-                            )
-                        }
+                        BookCard(book = filteredItems[index]) // Usamos BookCard aquí
                     }
                 }
             }
 
-            // Botón flotante en la parte inferior derecha
+            var showDialog by remember { mutableStateOf(false) }
+
+            if (showDialog) {
+                AddBookDialog(
+                    onDismiss = { showDialog = false },
+                    onBookAdded = { newBook -> books = books + newBook }
+                )
+            }
+
+            // Botón flotante para agregar un nuevo libro
             FloatingActionButton(
-                onClick = { items = items + "Libro ${items.size + 1}" },
+                onClick = { showDialog = true },
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
                     .padding(16.dp),
@@ -123,6 +114,9 @@ fun MainScreen() {
         }
     }
 }
+
+
+
 
 @Preview(showBackground = true)
 @Composable
