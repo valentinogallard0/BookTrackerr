@@ -63,7 +63,7 @@ fun MainScreen() {
                     text = "Book Tracker",
                     style = MaterialTheme.typography.headlineLarge.copy(
                         fontWeight = FontWeight.Bold,
-                        color = Color(141, 141, 140)
+                        color = Color(255, 255, 255)
                     )
                 )
 
