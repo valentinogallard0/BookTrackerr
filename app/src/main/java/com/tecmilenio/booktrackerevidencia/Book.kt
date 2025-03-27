@@ -8,4 +8,3 @@ data class Book(
     val startDate: String,
     val imageUri: String? = null // Imagen opcional
 )
-
