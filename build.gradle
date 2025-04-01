@@ -2,5 +2,15 @@
 plugins {
     id 'com.android.application' version '8.0.2' apply false
     id 'com.android.library' version '8.0.2' apply false
-    id 'org.jetbrains.kotlin.android' version '1.8.22' apply false
+    id 'org.jetbrains.kotlin.android' version '1.8.21' apply false  // Versión compatible con AGP 8.0.2
+}
+
+ext {
+    // Versiones compatibles con AGP 8.0.2 y Kotlin 1.8.21
+    compose_compiler_version = '1.4.8'  // Última versión compatible con este stack
+    room_version = '2.5.2'
+}
+
+task clean(type: Delete) {
+    delete rootProject.buildDir
 }
