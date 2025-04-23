@@ -1,8 +1,10 @@
 package com.tecmilenio.booktrackerevidencia
 
+import android.app.DatePickerDialog
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
@@ -23,6 +25,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import coil.compose.rememberAsyncImagePainter
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Date
+import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -37,9 +43,26 @@ fun AddBookDialog(
     var startDate by remember { mutableStateOf("") }
     var imageUri by remember { mutableStateOf<String?>(null) }
 
-    var errorMessage by remember { mutableStateOf<String?>(null) } // Mensaje de error
+    var errorMessage by remember { mutableStateOf<String?>(null) }
 
     val context = LocalContext.current
+    val calendar = Calendar.getInstance()
+
+    // Formato para mostrar la fecha
+    val dateFormatter = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+
+    // Configuración del DatePickerDialog
+    val datePickerDialog = DatePickerDialog(
+        context,
+        { _, year, month, dayOfMonth ->
+            calendar.set(year, month, dayOfMonth)
+            startDate = dateFormatter.format(calendar.time)
+        },
+        calendar.get(Calendar.YEAR),
+        calendar.get(Calendar.MONTH),
+        calendar.get(Calendar.DAY_OF_MONTH)
+    )
+
     val launcher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
         uri?.let { imageUri = it.toString() }
     }
@@ -61,7 +84,7 @@ fun AddBookDialog(
                     value = title,
                     onValueChange = { title = it },
                     label = { Text("Título") },
-                    isError = title.isEmpty() && errorMessage != null // Resaltar campo vacío
+                    isError = title.isEmpty() && errorMessage != null
                 )
                 OutlinedTextField(
                     value = author,
@@ -81,11 +104,15 @@ fun AddBookDialog(
                     label = { Text("Género") },
                     isError = genre.isEmpty() && errorMessage != null
                 )
+
+                // Campo de fecha con DatePicker
                 OutlinedTextField(
                     value = startDate,
                     onValueChange = { startDate = it },
                     label = { Text("Fecha de inicio") },
-                    isError = startDate.isEmpty() && errorMessage != null
+                    isError = startDate.isEmpty() && errorMessage != null,
+                    readOnly = true,  // Hacemos el campo de solo lectura
+                    modifier = Modifier.clickable { datePickerDialog.show() }  // Al hacer clic se abre el DatePicker
                 )
 
                 Spacer(modifier = Modifier.height(10.dp))
