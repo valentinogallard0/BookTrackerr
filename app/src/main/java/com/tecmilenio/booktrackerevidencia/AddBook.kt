@@ -8,6 +8,8 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Close
@@ -23,8 +25,10 @@ import androidx.compose.ui.window.Dialog
 import coil.compose.rememberAsyncImagePainter
 import java.text.SimpleDateFormat
 import java.util.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.lazy.LazyRow
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun AddBookDialog(
     onDismiss: () -> Unit,
@@ -70,7 +74,7 @@ fun AddBookDialog(
         uri?.let { imageUri = it.toString() }
     }
 
-    // Diálogo de selección de géneros
+    // Diálogo de selección de géneros (versión mejorada)
     if (showGenreDialog) {
         Dialog(onDismissRequest = { showGenreDialog = false }) {
             Surface(
@@ -81,11 +85,21 @@ fun AddBookDialog(
                 color = MaterialTheme.colorScheme.surface
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
-                    Text(
-                        text = "Selecciona los géneros",
-                        style = MaterialTheme.typography.titleMedium
-                    )
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text(
+                            text = "Selecciona los géneros",
+                            style = MaterialTheme.typography.titleMedium
+                        )
+                        IconButton(onClick = { showGenreDialog = false }) {
+                            Icon(Icons.Default.Close, contentDescription = "Cerrar")
+                        }
+                    }
+
                     Spacer(modifier = Modifier.height(16.dp))
+
                     LazyColumn {
                         items(availableGenres) { genre ->
                             Row(
@@ -110,7 +124,9 @@ fun AddBookDialog(
                             }
                         }
                     }
+
                     Spacer(modifier = Modifier.height(16.dp))
+
                     Button(
                         onClick = { showGenreDialog = false },
                         modifier = Modifier.align(Alignment.End)
@@ -126,7 +142,11 @@ fun AddBookDialog(
         onDismissRequest = onDismiss,
         title = { Text("Agregar Libro") },
         text = {
-            Column {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .verticalScroll(rememberScrollState())  // ¡Este es el cambio clave!
+            ) {
                 if (errorMessage != null) {
                     Text(
                         text = errorMessage!!,
@@ -141,12 +161,14 @@ fun AddBookDialog(
                     label = { Text("Título") },
                     isError = title.isEmpty() && errorMessage != null
                 )
+
                 OutlinedTextField(
                     value = author,
                     onValueChange = { author = it },
                     label = { Text("Autor") },
                     isError = author.isEmpty() && errorMessage != null
                 )
+
                 OutlinedTextField(
                     value = totalPages,
                     onValueChange = { totalPages = it },
@@ -154,17 +176,16 @@ fun AddBookDialog(
                     isError = (totalPages.isEmpty() || totalPages.toIntOrNull() == null) && errorMessage != null
                 )
 
-                // Campo de géneros con selector múltiple
+                // Campo de géneros
                 OutlinedTextField(
-                    value = if (selectedGenres.isEmpty()) "" else selectedGenres.joinToString(", "),
-                    onValueChange = { },
+                    value = if (selectedGenres.isEmpty()) "" else "Géneros seleccionados (${selectedGenres.size})",
+                    onValueChange = {},
                     label = { Text("Géneros") },
-                    isError = selectedGenres.isEmpty() && errorMessage != null,
                     readOnly = true,
                     trailingIcon = {
                         Icon(
                             imageVector = Icons.Default.ArrowDropDown,
-                            contentDescription = "Seleccionar géneros",
+                            contentDescription = null,
                             modifier = Modifier.clickable { showGenreDialog = true }
                         )
                     },
@@ -173,60 +194,46 @@ fun AddBookDialog(
                         .clickable { showGenreDialog = true }
                 )
 
-                // Mostrar géneros seleccionados como chips
+                // Chips de géneros - Versión optimizada
                 if (selectedGenres.isNotEmpty()) {
                     Spacer(modifier = Modifier.height(8.dp))
-                    Column(modifier = Modifier.fillMaxWidth()) {
-                        selectedGenres.chunked(3).forEach { rowGenres ->
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(vertical = 4.dp),
-                                horizontalArrangement = Arrangement.spacedBy(4.dp)
-                            ) {
-                                for (genre in rowGenres) {
-                                    AssistChip(
-                                        onClick = { },
-                                        label = { Text(genre) },
-                                        trailingIcon = {
-                                            Icon(
-                                                imageVector = Icons.Default.Close,
-                                                contentDescription = "Eliminar",
-                                                modifier = Modifier.clickable {
-                                                    selectedGenres = selectedGenres - genre
-                                                }
-                                            )
-                                        },
-                                        modifier = Modifier.weight(1f)
+                    LazyRow(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(48.dp),  // Altura fija para evitar crecimiento vertical
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        items(selectedGenres) { genre ->
+                            InputChip(
+                                selected = true,
+                                onClick = {},
+                                label = { Text(genre) },
+                                trailingIcon = {
+                                    Icon(
+                                        imageVector = Icons.Default.Close,
+                                        contentDescription = "Remover",
+                                        modifier = Modifier.clickable {
+                                            selectedGenres = selectedGenres - genre
+                                        }
                                     )
                                 }
-                                // Rellenar filas incompletas para mantener alineación
-                                if (rowGenres.size < 3) {
-                                    for (i in 0 until 3 - rowGenres.size) {
-                                        Spacer(modifier = Modifier.weight(1f))
-                                    }
-                                }
-                            }
+                            )
                         }
                     }
+                    Spacer(modifier = Modifier.height(8.dp))
                 }
 
-                // Campo de fecha con DatePicker
-                // Campo de fecha con DatePicker y botón explícito
+                // Campo de fecha
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     OutlinedTextField(
                         value = startDate,
                         onValueChange = { startDate = it },
                         label = { Text("Fecha de inicio") },
-                        isError = startDate.isEmpty() && errorMessage != null,
                         readOnly = true,
                         modifier = Modifier.weight(1f)
                     )
                     IconButton(onClick = { datePickerDialog.show() }) {
-                        Icon(
-                            imageVector = Icons.Default.DateRange,
-                            contentDescription = "Seleccionar fecha"
-                        )
+                        Icon(Icons.Default.DateRange, contentDescription = "Seleccionar fecha")
                     }
                 }
 
