@@ -4,12 +4,10 @@ data class Book(
     val title: String,
     val author: String,
     val totalPages: Int,
-    val genre: String, // Sigue siendo un String, pero ahora contendrá géneros separados por coma
+    val currentPages: Int = 0, // Nuevo campo
+    val genre: String,
     val startDate: String,
     val imageUri: String? = null
 ) {
-    // Método para obtener la lista de géneros
-    fun getGenresList(): List<String> {
-        return genre.split(", ")
-    }
+    fun getGenresList(): List<String> = genre.split(", ").filter { it.isNotBlank() }
 }

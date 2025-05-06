@@ -254,6 +254,7 @@ fun AddBookDialog(
                 }
             }
         },
+        // En la parte del confirmButton, reemplaza esto:
         confirmButton = {
             Button(onClick = {
                 if (title.isEmpty() || author.isEmpty() || totalPages.isEmpty() || selectedGenres.isEmpty() || startDate.isEmpty()) {
@@ -261,9 +262,20 @@ fun AddBookDialog(
                 } else if (totalPages.toIntOrNull() == null) {
                     errorMessage = "El número de páginas debe ser un valor válido"
                 } else {
-                    // Convertimos la lista de géneros a un solo string separado por comas
-                    val genresString = selectedGenres.joinToString(", ")
-                    onBookAdded(Book(title, author, totalPages.toInt(), genresString, startDate, imageUri))
+                    // Solución para ambos problemas:
+                    val totalPagesInt = totalPages.toIntOrNull() ?: 0
+                    val safeImageUri = imageUri ?: "" // Convierte null a string vacío
+
+                    onBookAdded(
+                        Book(
+                            title = title,
+                            author = author,
+                            totalPages = totalPagesInt,
+                            genre = selectedGenres.joinToString(", "),
+                            startDate = startDate,
+                            imageUri = safeImageUri
+                        )
+                    )
                     onDismiss()
                 }
             }) {
