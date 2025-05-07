@@ -14,12 +14,16 @@ import androidx.compose.ui.unit.dp
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SearchBar(searchText: TextFieldValue, onSearchTextChanged: (TextFieldValue) -> Unit) {
+fun SearchBar(
+    searchText: TextFieldValue,
+    onSearchTextChanged: (TextFieldValue) -> Unit,
+    modifier: Modifier = Modifier.fillMaxWidth() // Parámetro añadido con valor por defecto
+) {
     OutlinedTextField(
         value = searchText,
         onValueChange = onSearchTextChanged,
         placeholder = { Text("Buscar libro...") },
-        modifier = Modifier.fillMaxWidth(),
+        modifier = modifier, // Usamos el modifier recibido
         shape = RoundedCornerShape(20.dp),
         colors = TextFieldDefaults.outlinedTextFieldColors(
             containerColor = Color.White,
