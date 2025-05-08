@@ -1,5 +1,6 @@
 package com.tecmilenio.booktrackerevidencia
 
+import android.content.Context
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -19,6 +20,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import com.tecmilenio.booktrackerevidencia.ui.theme.BookTrackerEvidenciaTheme
 
 class MainActivity : ComponentActivity() {
@@ -26,17 +29,50 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             BookTrackerEvidenciaTheme {
-                // Elimina el Surface y aplica el color directamente
-                MainScreen()
+                val bookRepository = remember { BookRepository(this) }
+                var books by remember { mutableStateOf(bookRepository.loadBooks()) }
+
+                MainScreen(
+                    books = books,
+                    onBooksUpdated = { updatedBooks ->
+                        books = updatedBooks
+                        bookRepository.saveBooks(updatedBooks)
+                    },
+                    modifier = Modifier.fillMaxSize()
+                )
             }
+        }
+    }
+}
+
+class BookRepository(private val context: Context) {
+    private val sharedPreferences = context.getSharedPreferences("BookTrackerPrefs", Context.MODE_PRIVATE)
+    private val gson = Gson()
+    private val BOOKS_KEY = "SAVED_BOOKS"
+
+    fun saveBooks(books: List<Book>) {
+        val jsonBooks = gson.toJson(books)
+        sharedPreferences.edit().putString(BOOKS_KEY, jsonBooks).apply()
+    }
+
+    fun loadBooks(): List<Book> {
+        val jsonBooks = sharedPreferences.getString(BOOKS_KEY, null)
+        return if (jsonBooks != null) {
+            val type = object : TypeToken<List<Book>>() {}.type
+            gson.fromJson(jsonBooks, type) ?: emptyList()
+        } else {
+            emptyList()
         }
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MainScreen() {
-    var books by remember { mutableStateOf(listOf<Book>()) }
+fun MainScreen(
+    books: List<Book>,
+    onBooksUpdated: (List<Book>) -> Unit,
+    modifier: Modifier = Modifier
+) {
     var searchText by remember { mutableStateOf(TextFieldValue("")) }
     var selectedBook by remember { mutableStateOf<Book?>(null) }
     var showAddDialog by remember { mutableStateOf(false) }
@@ -50,26 +86,24 @@ fun MainScreen() {
         }
     }
 
-    // Navegación condicional
     if (selectedBook != null) {
         BookDetailScreen(
             book = selectedBook!!,
             onBack = { selectedBook = null },
             onUpdateProgress = { updatedBook ->
-                books = books.map { book ->
+                val updatedBooks = books.map { book ->
                     if (book.title == updatedBook.title) updatedBook else book
                 }
+                onBooksUpdated(updatedBooks)
                 selectedBook = updatedBook
             }
         )
     } else {
         Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(Color(21, 37, 60)) // Fondo azul marino
+            modifier = modifier.background(Color(21, 37, 60))
         ) {
             Scaffold(
-                containerColor = Color.Transparent, // Importante para que se vea el fondo
+                containerColor = Color.Transparent,
                 floatingActionButton = {
                     FloatingActionButton(
                         onClick = { showAddDialog = true },
@@ -124,7 +158,9 @@ fun MainScreen() {
             if (showAddDialog) {
                 AddBookDialog(
                     onDismiss = { showAddDialog = false },
-                    onBookAdded = { newBook -> books = books + newBook }
+                    onBookAdded = { newBook ->
+                        onBooksUpdated(books + newBook)
+                    }
                 )
             }
         }
@@ -135,14 +171,19 @@ fun MainScreen() {
 @Composable
 fun MainScreenPreview() {
     BookTrackerEvidenciaTheme {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(Color(21, 37, 60))
-        ) {
-            MainScreen()
-        }
+        MainScreen(
+            books = listOf(
+                Book(
+                    title = "Cien años de soledad",
+                    author = "Gabriel García Márquez",
+                    totalPages = 432,
+                    currentPages = 150,
+                    genre = "Novela, Realismo mágico",
+                    startDate = "2023-10-01"
+                )
+            ),
+            onBooksUpdated = {},
+            modifier = Modifier.background(Color(21, 37, 60))
+        )
     }
 }
-
-
